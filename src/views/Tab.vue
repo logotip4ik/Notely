@@ -1,6 +1,11 @@
 <template>
   <ion-page>
     <ion-content>
+      <ion-fab class="fab">
+        <ion-fab-button @click="$router.push({ name: 'Create' })">
+          <ion-icon :icon="add"></ion-icon>
+        </ion-fab-button>
+      </ion-fab>
       <ion-tabs>
         <ion-tab-bar slot="bottom">
           <ion-tab-button tab="home" href="/tab/home">
@@ -33,8 +38,10 @@ import {
   IonTabButton,
   IonTabs,
   IonContent,
+  IonFab,
+  IonFabButton,
 } from '@ionic/vue';
-import { create, search, cog } from 'ionicons/icons';
+import { create, search, cog, add } from 'ionicons/icons';
 
 export default defineComponent({
   components: {
@@ -45,13 +52,23 @@ export default defineComponent({
     IonTabBar,
     IonTabButton,
     IonTabs,
+    IonFab,
+    IonFabButton,
   },
   setup() {
     return {
       create,
       search,
       cog,
+      add,
     };
   },
 });
 </script>
+
+<style>
+.fab {
+  bottom: 4rem;
+  right: 2rem;
+}
+</style>

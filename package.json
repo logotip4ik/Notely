@@ -16,6 +16,7 @@
     "@capacitor/core": "3.0.1",
     "@capacitor/haptics": "1.0.1",
     "@capacitor/keyboard": "1.0.1",
+    "@capacitor/splash-screen": "^1.0.1",
     "@capacitor/status-bar": "1.0.1",
     "@ionic-native/file": "^5.33.1",
     "@ionic-native/sqlite": "^5.33.1",
@@ -38,7 +39,8 @@
     "uuid": "^3.4.0",
     "vue": "^3.0.0-0",
     "vue-router": "^4.0.0-0",
-    "vuex": "^4.0.0-0"
+    "vuex": "^4.0.0-0",
+    "vuex-persistedstate": "*"
   },
   "devDependencies": {
     "@capacitor/cli": "3.0.1",

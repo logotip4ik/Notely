@@ -27,7 +27,7 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { useStore } from '../store';
+import { useStore } from '@/store';
 import {
   IonPage,
   IonContent,

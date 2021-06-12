@@ -1,5 +1,6 @@
 import { InjectionKey } from 'vue';
 import { createStore, useStore as baseUseStore, Store } from 'vuex';
+import createPersistedState from 'vuex-persistedstate';
 import Dexie, { IndexableType } from 'dexie';
 // import crypto from 'crypto-js';
 import bcrypt from 'bcryptjs';
@@ -14,8 +15,9 @@ interface Note {
 export interface State {
   notes: Note[];
   db: Dexie;
-  user: string;
+  masterPassword: string;
   loggedIn: boolean;
+  darkMode: boolean;
 }
 
 export const key: InjectionKey<Store<State>> = Symbol();
@@ -23,9 +25,10 @@ export const key: InjectionKey<Store<State>> = Symbol();
 export const store = createStore<State>({
   state: {
     notes: [],
-    user: '',
+    masterPassword: '',
     loggedIn: false,
     db: new Dexie('notes_store'),
+    darkMode: false,
   },
   actions: {
     createDB({ state }) {
@@ -34,12 +37,22 @@ export const store = createStore<State>({
         notes: '&id, title, createdAt',
       });
     },
+
     insertInto({ state }, { value }) {
       return new Promise((resolve, reject) => {
         state.db
           .table('notes')
           .add({ ...value })
           .then((val: IndexableType) => resolve(val))
+          .catch((err: Error) => reject(err));
+      });
+    },
+    getOne({ state }, id: string) {
+      return new Promise((resolve, reject) => {
+        state.db
+          .table('notes')
+          .get({ id })
+          .then((note: object) => resolve(note))
           .catch((err: Error) => reject(err));
       });
     },
@@ -54,17 +67,20 @@ export const store = createStore<State>({
     },
     compare({ state }, masterPassword) {
       return new Promise((resolve) => {
-        if (!state.user) {
+        if (!state.masterPassword) {
           const salt = 8;
           const password = bcrypt.hashSync(masterPassword, salt);
-          state.user = password;
+          state.masterPassword = password;
           state.loggedIn = true;
           state.db
             .table('user')
             .put({ password })
             .then(() => resolve(true));
         } else {
-          const isSame = bcrypt.compareSync(masterPassword, state.user);
+          const isSame = bcrypt.compareSync(
+            masterPassword,
+            state.masterPassword,
+          );
           if (isSame) state.loggedIn = true;
           resolve(isSame);
         }
@@ -81,9 +97,10 @@ export const store = createStore<State>({
       //       'Lorem ipsum dolor sit amet consectetur adipisicing elit. Excepturi quibusdam nulla deleniti vel quae modi.',
       //     createdAt: new Date(),
       //   };
+      //   state.db.table('notes').add(value);
       // }
-      if (!user && !user.password) return;
-      state.user = user.password;
+      if (!user) return;
+      state.masterPassword = user.password;
       state.notes = await state.db
         .table('notes')
         .orderBy('createdAt')
@@ -91,6 +108,7 @@ export const store = createStore<State>({
         .toArray();
     },
   },
+  plugins: [createPersistedState()],
 });
 
 // define your own `useStore` composition function

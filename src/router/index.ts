@@ -3,9 +3,11 @@ import { RouteRecordRaw } from 'vue-router';
 import { store } from '../store';
 import Tab from '../views/Tab.vue';
 import Home from '../views/Home.vue';
+import Note from '../views/Note.vue';
 import Login from '../views/Login.vue';
 import Search from '../views/Search.vue';
 import Settings from '../views/Settings.vue';
+import CreateNote from '../views/CreateNote.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -16,6 +18,16 @@ const routes: Array<RouteRecordRaw> = [
     path: '/login',
     name: 'Login',
     component: Login,
+  },
+  {
+    path: '/create',
+    name: 'Create',
+    component: CreateNote,
+  },
+  {
+    path: '/note/:id',
+    name: 'Note',
+    component: Note,
   },
   {
     path: '/tab',

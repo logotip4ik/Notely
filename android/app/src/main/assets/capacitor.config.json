@@ -1,8 +1,13 @@
 {
 	"appId": "io.ionic.starter",
-	"appName": "password-manager",
+	"appName": "Notely",
 	"webDir": "dist",
 	"bundledWebRuntime": false,
+	"plugins": {
+		"SplashScreen": {
+			"splashFullScreen": true
+		}
+	},
 	"server": {
 		"url": "http://192.168.88.218:8100"
 	}

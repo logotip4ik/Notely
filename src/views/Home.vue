@@ -1,13 +1,17 @@
 <template>
   <ion-page>
-    <ion-content class="">
+    <ion-content class="ion-padding-top">
       <ion-grid>
         <ion-row v-for="(row, rowIdx) in notes" :key="rowIdx">
           <ion-col v-for="note in row" :key="note.rowIdx">
-            <ion-card class="ion-padding-top ion-padding-bottom">
+            <ion-card
+              class="ion-padding-top ion-padding-bottom ion-activatable ripple-parent"
+              @click="$router.push({ name: 'Note', params: { id: note.id } })"
+            >
               <ion-card-header>
                 <ion-card-title>{{ note.title }}</ion-card-title>
               </ion-card-header>
+              <ion-ripple-effect></ion-ripple-effect>
             </ion-card>
           </ion-col>
         </ion-row>
@@ -25,6 +29,7 @@ import {
   IonGrid,
   IonRow,
   IonCol,
+  IonRippleEffect,
   IonCard,
   IonCardHeader,
   IonCardTitle,
@@ -59,9 +64,17 @@ export default defineComponent({
     IonGrid,
     IonRow,
     IonCol,
+    IonRippleEffect,
     IonCard,
-    IonCardTitle,
     IonCardHeader,
+    IonCardTitle,
   },
 });
 </script>
+
+<style>
+.ripple-parent {
+  position: relative;
+  overflow: hidden;
+}
+</style>
