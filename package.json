@@ -26,8 +26,6 @@
     "aws-sdk": "^2.926.0",
     "bcrypt": "^5.0.1",
     "bcryptjs": "^1.0.1",
-    "cordova-plugin-file": "^6.0.2",
-    "cordova-sqlite-storage": "^6.0.0",
     "core-js": "^3.6.5",
     "crypto-js": "^4.0.0",
     "dexie": "^3.0.3",

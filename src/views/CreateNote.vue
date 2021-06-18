@@ -3,6 +3,7 @@
     <ion-content class="ion-padding-top">
       <ion-header class="ion-padding-top">
         <ion-toolbar>
+          <!-- TODO: V-SLOT DONT WORK -->
           <ion-buttons slot="start">
             <ion-button
               color="primary"
@@ -23,21 +24,22 @@
             v-model="title"
             clear-input
             type="text"
-            required
             ref="input1"
-            autofocus="true"
+            :autofocus="true"
             @keypress.enter="$refs.input2.focus()"
           ></ion-input>
         </ion-item>
-        <ion-item class="iion-margin-bottom">
+        <ion-item class="ion-margin-bottom">
           <ion-label position="floating">Text</ion-label>
-          <ion-input
+          <ion-textarea
             v-model="value"
             ref="input2"
             clear-input
             type="text"
-            required
-          ></ion-input>
+            :auto-grow="true"
+            :rows="3"
+            @keydown.enter="handleSubmit"
+          ></ion-textarea>
         </ion-item>
         <ion-buttons class="ion-justify-content-end ion-padding-top">
           <ion-button
@@ -63,7 +65,7 @@
 </template>
 
 <script>
-import { defineComponent, ref, onMounted } from 'vue';
+import { defineComponent, ref } from 'vue';
 import {
   IonPage,
   IonContent,
@@ -76,42 +78,41 @@ import {
   IonInput,
   IonItem,
   IonLabel,
-  onIonViewDidEnter,
+  IonTextarea,
+  // onIonViewDidEnter,
 } from '@ionic/vue';
 import { arrowBack } from 'ionicons/icons';
 import { v4 } from 'uuid';
+import { useStore } from '@/store';
+import { useRouter } from 'vue-router';
 
 export default defineComponent({
   setup() {
-    const input1 = ref(null);
+    const store = useStore();
+    const router = useRouter();
 
     const title = ref('');
     const value = ref('');
 
+    function resetForm() {
+      title.value = '';
+      value.value = '';
+    }
     function handleSubmit() {
-      if (!title.value && !value.value) return;
-      const item = {
+      if (!title.value || !value.value) return;
+      const note = {
         id: v4(),
         title: title.value,
         value: value.value,
         createdAt: new Date(),
       };
-      console.log(item);
+      store.dispatch('createNote', note).then(() => {
+        resetForm();
+        router.go(-1);
+      });
     }
-    function resetForm() {
-      title.value = '';
-      value.value = '';
-    }
-
-    onIonViewDidEnter(() => {
-      if (!input1.value) return;
-      // setTimeout(() => {
-      //   input1.value.setFocus();
-      // }, 150);
-      // input1.value.setFocus();
-    });
-
-    return { title, value, arrowBack, handleSubmit, resetForm, input1 };
+    // TODO: Autofocus on $refs.input1
+    return { title, value, arrowBack, handleSubmit, resetForm };
   },
   components: {
     IonPage,
@@ -125,6 +126,7 @@ export default defineComponent({
     IonInput,
     IonItem,
     IonLabel,
+    IonTextarea,
   },
 });
 </script>

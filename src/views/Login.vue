@@ -48,7 +48,9 @@ export default defineComponent({
       store
         .dispatch('compare', masterPassword.value)
         .then((same: boolean) => {
-          if (same) return router.push({ name: 'Home' });
+          if (!same) return;
+          router.push({ name: 'Home' });
+          store.dispatch('decryptAllNotes');
         })
         .catch((err: Error) => console.warn(err));
     }

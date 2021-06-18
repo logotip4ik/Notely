@@ -6,12 +6,12 @@
 
 <script lang="ts">
 import { IonApp, IonRouterOutlet } from '@ionic/vue';
-import { defineComponent } from 'vue';
+import { computed, defineComponent, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { App } from '@capacitor/app';
 import { useBackButton } from '@ionic/vue';
-import { store } from '@/store';
+import { useStore, store } from '@/store';
 
 export default defineComponent({
   name: 'App',
@@ -22,17 +22,16 @@ export default defineComponent({
   setup() {
     const route = useRoute();
     const router = useRouter();
+    const store = useStore();
 
     store.dispatch('checkForNotes');
 
     StatusBar.setOverlaysWebView({ overlay: true });
     StatusBar.setStyle({ style: Style.Light });
+    StatusBar.setBackgroundColor({ color: '#ffffff' });
 
-    useBackButton(10, () => {
-      if (window.history.length === 0 || route.name === 'Login')
-        return App.exitApp();
-      return router.go(-1);
-    });
+    const darkMode = computed(() => store.state.darkMode);
+
     // NEED TO FIX: This don't work, problem with sdk
     // const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
     // this.toggleDarkTheme(prefersDark.matches);
@@ -40,14 +39,31 @@ export default defineComponent({
     //   console.log({ darkMode: mediaQuery.matches });
     //   this.toggleDarkTheme(mediaQuery.matches);
     // });
+    function toggleDarkTheme(shouldAdd: boolean) {
+      document.body.classList.toggle('dark', shouldAdd);
+    }
+
+    useBackButton(10, () => {
+      if (window.history.length === 0 || route.name === 'Login')
+        return App.exitApp();
+      return router.go(-1);
+    });
+
+    watch(darkMode, (isDarkMode) => {
+      toggleDarkTheme(isDarkMode);
+      if (isDarkMode) {
+        StatusBar.setStyle({ style: Style.Dark });
+        StatusBar.setBackgroundColor({ color: '#121212' });
+      } else {
+        StatusBar.setStyle({ style: Style.Light });
+        StatusBar.setBackgroundColor({ color: '#ffffff' });
+      }
+    });
   },
   beforeUnmount() {
     store.state.db.close();
   },
-  methods: {
-    toggleDarkTheme(shouldAdd: boolean) {
-      document.body.classList.toggle('dark', shouldAdd);
-    },
-  },
 });
 </script>
+
+<style></style>

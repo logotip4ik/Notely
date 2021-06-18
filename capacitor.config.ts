@@ -7,7 +7,9 @@ const config: CapacitorConfig = {
   bundledWebRuntime: false,
   plugins: {
     StatusBar: {
-      OverlaysWebView: { overlay: true },
+      overlaysWebView: { overlay: true },
+      style: { style: 'LIGHT' },
+      backgroundColor: { color: '#00000025' },
     },
     SplashScreen: {
       splashFullScreen: true,

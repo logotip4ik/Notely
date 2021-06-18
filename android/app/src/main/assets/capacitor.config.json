@@ -4,11 +4,19 @@
 	"webDir": "dist",
 	"bundledWebRuntime": false,
 	"plugins": {
+		"StatusBar": {
+			"overlaysWebView": {
+				"overlay": true
+			},
+			"style": {
+				"style": "LIGHT"
+			},
+			"backgroundColor": {
+				"color": "#00000025"
+			}
+		},
 		"SplashScreen": {
 			"splashFullScreen": true
 		}
-	},
-	"server": {
-		"url": "http://192.168.88.218:8100"
 	}
 }
