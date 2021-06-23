@@ -38,7 +38,6 @@ export default defineComponent({
       document.body.classList.add('dark');
       store.dispatch('toggleDarkMode');
     }
-    console.log(store.state.darkMode);
 
     const darkMode = computed(() => store.state.darkMode);
 
