@@ -1,22 +1,14 @@
 <template>
   <ion-page>
-    <ion-content class="ion-padding-top">
-      <ion-header class="ion-padding-top">
-        <ion-toolbar>
-          <!-- TODO: V-SLOT DONT WORK -->
-          <ion-buttons slot="start">
-            <ion-button
-              color="primary"
-              fill="outline"
-              shape="round"
-              @click="$router.go(-1)"
-            >
-              <ion-icon :icon="arrowBack"></ion-icon>
-            </ion-button>
-          </ion-buttons>
-          <ion-title>Create Note</ion-title>
-        </ion-toolbar>
-      </ion-header>
+    <ion-header>
+      <ion-toolbar>
+        <ion-buttons slot="start">
+          <ion-back-button default-href="/tab/home"></ion-back-button>
+        </ion-buttons>
+        <ion-title>Create Note</ion-title>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content>
       <form @submit.prevent="handleSubmit" class="ion-padding form">
         <ion-item class="ion-margin-bottom">
           <ion-label position="floating">Title</ion-label>
@@ -25,7 +17,7 @@
             clear-input
             type="text"
             ref="input1"
-            :autofocus="true"
+            autofocus="true"
             @keypress.enter="$refs.input2.focus()"
           ></ion-input>
         </ion-item>
@@ -74,20 +66,21 @@ import {
   IonToolbar,
   IonButtons,
   IonButton,
-  IonIcon,
   IonInput,
   IonItem,
   IonLabel,
   IonTextarea,
-  // onIonViewDidEnter,
+  IonBackButton,
+  onIonViewDidEnter,
 } from '@ionic/vue';
-import { arrowBack } from 'ionicons/icons';
 import { v4 } from 'uuid';
 import { useStore } from '@/store';
 import { useRouter } from 'vue-router';
 
 export default defineComponent({
   setup() {
+    const input1 = ref(null);
+
     const store = useStore();
     const router = useRouter();
 
@@ -104,6 +97,7 @@ export default defineComponent({
         id: v4(),
         title: title.value,
         value: value.value,
+        starred: false,
         createdAt: new Date(),
       };
       store.dispatch('createNote', note).then(() => {
@@ -111,8 +105,12 @@ export default defineComponent({
         router.go(-1);
       });
     }
-    // TODO: Autofocus on $refs.input1
-    return { title, value, arrowBack, handleSubmit, resetForm };
+
+    onIonViewDidEnter(() => {
+      input1.value.$el.children[0].focus();
+    });
+
+    return { title, value, handleSubmit, resetForm, input1 };
   },
   components: {
     IonPage,
@@ -122,11 +120,11 @@ export default defineComponent({
     IonToolbar,
     IonButtons,
     IonButton,
-    IonIcon,
     IonInput,
     IonItem,
     IonLabel,
     IonTextarea,
+    IonBackButton,
   },
 });
 </script>

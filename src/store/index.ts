@@ -4,7 +4,6 @@ import createPersistedState from 'vuex-persistedstate';
 import Dexie, { IndexableType } from 'dexie';
 import { AES } from 'crypto-js';
 import bcrypt from 'bcryptjs';
-import { v4 } from 'uuid';
 
 export interface Note {
   id: string;
@@ -37,8 +36,8 @@ export const store = createStore<State>({
       state.darkMode = !state.darkMode;
     },
     encryptNote({ state }, note: Note) {
-      const base64TitleString = btoa(note.title);
-      const base64ValueString = btoa(note.value);
+      const base64TitleString = btoa(encodeURI(note.title));
+      const base64ValueString = btoa(encodeURI(note.value));
 
       const hashedTitleString = AES.encrypt(
         base64TitleString,
@@ -84,8 +83,8 @@ export const store = createStore<State>({
 
       return {
         ...hashedNote,
-        title: atob(base64TitleString),
-        value: atob(base64ValueString),
+        title: decodeURI(atob(base64TitleString)),
+        value: decodeURI(atob(base64ValueString)),
       };
     },
     async decryptAllNotes({ state, dispatch }) {
@@ -155,11 +154,12 @@ export const store = createStore<State>({
     },
     getOne({ state }, id: string) {
       return new Promise((resolve, reject) => {
-        state.db
-          .table('notes')
-          .get({ id })
-          .then((note: object) => resolve(note))
-          .catch((err: Error) => reject(err));
+        const { notes } = state;
+        for (let i = 0; i < notes.length; i++) {
+          const note = notes[i];
+          if (note.id === id) return resolve(note);
+        }
+        reject('Not Found');
       });
     },
     getAll({ state }, tableName: string) {
@@ -170,6 +170,19 @@ export const store = createStore<State>({
           .then((val: any[]) => resolve(val))
           .catch((err: Error) => reject(err));
       });
+    },
+    async changePassword({ state, dispatch }, newPassword) {
+      const salt = 8;
+      state.masterPassword = newPassword;
+      await state.db
+        .table('user')
+        .put({ password: bcrypt.hashSync(newPassword, salt) });
+      await state.db.table('notes').clear();
+      const { notes } = state;
+      for (let i = 0; i < notes.length; i++) {
+        const secureNote = await dispatch('encryptNote', notes[i]);
+        state.db.table('notes').put(secureNote);
+      }
     },
     compare({ state }, masterPassword) {
       return new Promise((resolve) => {
@@ -198,18 +211,6 @@ export const store = createStore<State>({
     async checkForNotes({ state, dispatch }) {
       await dispatch('createDB');
       const user = (await dispatch('getAll', 'user'))[0];
-      // for (let i = 0; i < 40; i++) {
-      //   const value = {
-      //     id: v4(),
-      //     title: `Hello from ${i + 1} item`,
-      //     value:
-      //       'Lorem ipsum dolor sit amet consectetur adipisicing elit. Excepturi quibusdam nulla deleniti vel quae modi.',
-      //     createdAt: new Date(),
-      //   };
-      //   const secureNote = await dispatch('encryptNote', value);
-      //   console.log(await dispatch('decryptNote', secureNote));
-      //   state.db.table('notes').add(secureNote);
-      // }
       if (!user) return;
       state.masterPassword = user.password;
     },

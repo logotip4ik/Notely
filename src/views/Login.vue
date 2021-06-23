@@ -9,10 +9,10 @@
           </ion-label>
           <ion-input
             v-model="masterPassword"
-            autofocus
             clear-input
             type="password"
             maxlength="18"
+            ref="input"
             @keypress.enter.prevent="handleClick"
           />
         </ion-item>
@@ -24,7 +24,7 @@
   </ion-page>
 </template>
 
-<script lang="ts">
+<script>
 import { defineComponent, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useStore } from '@/store';
@@ -35,27 +35,34 @@ import {
   IonButton,
   IonItem,
   IonLabel,
+  onIonViewDidEnter,
 } from '@ionic/vue';
 
 export default defineComponent({
   setup() {
+    const input = ref(null);
+
     const router = useRouter();
     const store = useStore();
     const masterPassword = ref('');
 
     function handleClick() {
-      if (!masterPassword.value) return;
+      if (!masterPassword.value || masterPassword.value.length < 8) return;
       store
         .dispatch('compare', masterPassword.value)
-        .then((same: boolean) => {
+        .then((same) => {
           if (!same) return;
           router.push({ name: 'Home' });
           store.dispatch('decryptAllNotes');
         })
-        .catch((err: Error) => console.warn(err));
+        .catch((err) => console.warn(err));
     }
 
-    return { masterPassword, handleClick };
+    onIonViewDidEnter(() => {
+      setTimeout(() => input.value.$el.children[0].focus(), 150);
+    });
+
+    return { masterPassword, handleClick, input };
   },
   components: { IonPage, IonContent, IonInput, IonButton, IonItem, IonLabel },
 });

@@ -1,11 +1,6 @@
 <template>
   <ion-page>
     <ion-content>
-      <ion-fab class="fab">
-        <ion-fab-button @click="$router.push({ name: 'Create' })">
-          <ion-icon :icon="add"></ion-icon>
-        </ion-fab-button>
-      </ion-fab>
       <ion-tabs>
         <ion-tab-bar slot="bottom">
           <ion-tab-button tab="home" href="/tab/home">
@@ -24,6 +19,11 @@
           </ion-tab-button>
         </ion-tab-bar>
       </ion-tabs>
+      <ion-fab class="fab" @click="() => $router.push({ name: 'Create' })">
+        <ion-fab-button>
+          <ion-icon :icon="add"></ion-icon>
+        </ion-fab-button>
+      </ion-fab>
     </ion-content>
   </ion-page>
 </template>

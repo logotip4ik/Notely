@@ -1,16 +1,9 @@
 <template>
   <ion-page>
-    <ion-header v-if="note" class="padding-top">
+    <ion-header v-if="note">
       <ion-toolbar>
         <ion-buttons slot="start">
-          <ion-button
-            color="primary"
-            fill="outline"
-            shape="round"
-            @click="$router.go(-1)"
-          >
-            <ion-icon :icon="arrowBack"></ion-icon>
-          </ion-button>
+          <ion-back-button></ion-back-button>
         </ion-buttons>
         <ion-title>{{ note.title }}</ion-title>
         <ion-buttons v-if="editing" slot="end">
@@ -25,21 +18,28 @@
         </ion-buttons>
       </ion-toolbar>
     </ion-header>
-    <ion-content v-if="note" class="ion-padding">
+    <ion-content v-if="note" class="ion-padding" fullscreen>
       <ion-item-divider>
         <ion-label class="ion-text-wrap">
-          <span
-            class="font-weight-400 font-size-large"
-            contenteditable
+          <ion-textarea
+            :rows="1"
+            auto-grow
+            ref="title"
+            :value="note.title"
+            class="font-weight-400 font-size-large no-input"
             @input="handleInput($event, 'title')"
-            >{{ note.title }}</span
-          >
+          />
         </ion-label>
       </ion-item-divider>
       <br />
-      <br />
-      <ion-text contenteditable @input="handleInput($event, 'value')">
-        {{ note.value }}
+      <ion-text>
+        <ion-textarea
+          auto-grow
+          ref="value"
+          :value="note.value"
+          class="no-input"
+          @input="handleInput($event, 'value')"
+        ></ion-textarea>
       </ion-text>
     </ion-content>
   </ion-page>
@@ -61,14 +61,19 @@ import {
   IonText,
   IonLabel,
   IonItemDivider,
+  IonTextarea,
+  IonBackButton,
 } from '@ionic/vue';
-import { arrowBack, checkmark } from 'ionicons/icons';
+import { checkmark } from 'ionicons/icons';
 
 export default defineComponent({
   setup() {
     const store = useStore();
     const route = useRoute();
     const router = useRouter();
+
+    const title = ref(null);
+    const value = ref(null);
 
     const note = ref(null);
     const editing = ref(false);
@@ -79,34 +84,37 @@ export default defineComponent({
 
     store
       .dispatch('getOne', id)
-      .then((encryptedNote) => {
-        store
-          .dispatch('decryptNote', encryptedNote)
-          .then((val) => (note.value = val))
-          .catch(() => router.push({ name: 'Home' }));
-      })
+      .then((n) => (note.value = n))
       .catch(() => router.push({ name: 'Home' }));
 
     function handleInput({ target }, type) {
       editing.value = true;
-      newNote.value[type] = target.textContent;
+      newNote.value[type] = target.value;
     }
     function saveNote() {
-      store.dispatch('editNote', {
+      const n = {
         ...note.value,
-        ...newNote.value,
+        title: newNote.value.title
+          ? newNote.value.title.trim()
+          : note.value.title,
+        value: newNote.value.value
+          ? newNote.value.value.trim()
+          : note.value.value,
         createdAt: new Date(),
-      });
+      };
+      store.dispatch('editNote', n);
+      note.value = n;
       editing.value = false;
     }
 
     return {
       note,
       editing,
-      arrowBack,
       checkmark,
       handleInput,
       saveNote,
+      title,
+      value,
     };
   },
   components: {
@@ -121,6 +129,8 @@ export default defineComponent({
     IonText,
     IonLabel,
     IonItemDivider,
+    IonTextarea,
+    IonBackButton,
   },
 });
 </script>
@@ -129,7 +139,8 @@ export default defineComponent({
 .font-size-large {
   font-size: 1.5rem;
 }
-.padding-top {
-  padding-top: 2rem;
+.no-input {
+  border: none;
+  outline: none;
 }
 </style>

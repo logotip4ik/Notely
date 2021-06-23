@@ -3,7 +3,6 @@ import { RouteRecordRaw } from 'vue-router';
 import { store } from '../store';
 import Tab from '../views/Tab.vue';
 import Home from '../views/Home.vue';
-import Note from '../views/Note.vue';
 import Login from '../views/Login.vue';
 import Search from '../views/Search.vue';
 import Settings from '../views/Settings.vue';
@@ -27,7 +26,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/note/:id',
     name: 'Note',
-    component: Note,
+    component: () => import('@/views/Note.vue'),
   },
   {
     path: '/tab',

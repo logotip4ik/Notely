@@ -1,6 +1,6 @@
 <template>
   <ion-page>
-    <ion-content class="ion-padding-top">
+    <ion-content>
       <div :class="{ center: true, 'ion-hide': notesLength !== 0 }" ref="text">
         <h1>
           Oops, you haven't got any notes, create some, by clicking "&plus;"
@@ -16,43 +16,23 @@
             <h1>{{ noteDate }}</h1>
           </ion-list-header>
         </ion-item-divider>
-        <ion-item-sliding
+        <NoteListItem
           v-for="(note, noteIdx) in notes[noteDate]"
           :key="note.id"
-          :ref="(el) => (el ? (items[note.id] = el) : null)"
           :class="{
             'ion-margin-bottom': true,
             'ion-margin-top': noteIdx === 0,
           }"
+          :note="note"
         >
-          <ion-item
-            class="ion-activatable ripple-parent"
-            @click="$router.push({ name: 'Note', params: { id: note.id } })"
-          >
-            <h3 class="ion-text-wrap font-weight-400">{{ note.title }}</h3>
-            <ion-note slot="end">
-              {{ formatDate(note.createdAt) }}
-            </ion-note>
-          </ion-item>
-          <ion-item-options side="start">
-            <ion-item-option color="danger" @click="deleteNote(note.id)">
-              <ion-icon :icon="trash" class="icon-large"></ion-icon>
-            </ion-item-option>
-          </ion-item-options>
-          <ion-item-options side="end">
-            <ion-item-option color="warning" @click="toggleStar(note.id)">
-              <ion-icon :icon="starOutline" class="icon-large"></ion-icon>
-            </ion-item-option>
-          </ion-item-options>
-          <ion-ripple-effect></ion-ripple-effect>
-        </ion-item-sliding>
+        </NoteListItem>
       </ion-list>
     </ion-content>
   </ion-page>
 </template>
 
 <script>
-import { computed, defineComponent, ref, onBeforeUpdate, watch } from 'vue';
+import { computed, defineComponent, ref, watch } from 'vue';
 import { useStore } from '../store';
 import {
   IonPage,
@@ -60,21 +40,13 @@ import {
   IonList,
   IonItemDivider,
   IonListHeader,
-  IonItemSliding,
-  IonItem,
-  IonItemOption,
-  IonItemOptions,
-  IonNote,
-  IonRippleEffect,
-  IonIcon,
   createAnimation,
 } from '@ionic/vue';
-import { trash, starOutline } from 'ionicons/icons';
+import NoteListItem from '@/components/NoteListItem.vue';
 
 export default defineComponent({
   setup() {
     const text = ref(null);
-    const items = ref([]);
 
     const store = useStore();
 
@@ -107,30 +79,6 @@ export default defineComponent({
       return final;
     });
 
-    function formatDate(date) {
-      return new Intl.DateTimeFormat('ua', {
-        hour: 'numeric',
-        minute: 'numeric',
-      }).format(date);
-    }
-    function deleteNote(id) {
-      createAnimation()
-        .addElement(items.value[id].$el)
-        .duration(250)
-        .easing('ease-out')
-        .fromTo('transform', 'translateX(0%)', 'translateX(100%)')
-        .play()
-        .then(() => store.dispatch('deleteNote', id));
-    }
-    function toggleStar(id) {
-      console.log('TOGGLING STAR ON - ', id);
-      // TODO: implement this functions
-    }
-
-    onBeforeUpdate(() => {
-      items.value = [];
-    });
-
     watch(notesLength, (val) => {
       if (val === 0) {
         createAnimation()
@@ -142,16 +90,10 @@ export default defineComponent({
     });
 
     return {
-      items,
       text,
       notes,
-      formatDate,
       notesDates,
       notesLength,
-      trash,
-      starOutline,
-      deleteNote,
-      toggleStar,
     };
   },
   components: {
@@ -160,13 +102,7 @@ export default defineComponent({
     IonList,
     IonItemDivider,
     IonListHeader,
-    IonItemSliding,
-    IonItem,
-    IonItemOption,
-    IonItemOptions,
-    IonNote,
-    IonRippleEffect,
-    IonIcon,
+    NoteListItem,
   },
 });
 </script>
@@ -185,5 +121,10 @@ export default defineComponent({
 }
 .icon-large {
   font-size: 28px;
+}
+.badge-floating {
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 </style>
