@@ -36,6 +36,7 @@
         <ion-textarea
           auto-grow
           ref="value"
+          :rows="numRows"
           :value="note.value"
           class="no-input"
           @input="handleInput($event, 'value')"
@@ -63,6 +64,7 @@ import {
   IonItemDivider,
   IonTextarea,
   IonBackButton,
+  onIonViewWillEnter,
 } from '@ionic/vue';
 import { checkmark } from 'ionicons/icons';
 
@@ -77,6 +79,7 @@ export default defineComponent({
 
     const note = ref(null);
     const editing = ref(false);
+    const numRows = ref(1);
     const newNote = ref({});
 
     if (!route.params.id) return router.push({ name: 'Home' });
@@ -107,6 +110,11 @@ export default defineComponent({
       editing.value = false;
     }
 
+    onIonViewWillEnter(() => {
+      const rowHeihgt = 24;
+      numRows.value = Math.ceil(window.innerHeight / rowHeihgt);
+    });
+
     return {
       note,
       editing,
@@ -115,6 +123,7 @@ export default defineComponent({
       saveNote,
       title,
       value,
+      numRows,
     };
   },
   components: {
@@ -142,5 +151,8 @@ export default defineComponent({
 .no-input {
   border: none;
   outline: none;
+}
+.full-height {
+  min-height: 100% !important;
 }
 </style>
